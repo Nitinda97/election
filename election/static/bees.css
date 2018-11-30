@@ -1,0 +1,312 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+
+}
+
+.header {
+    overflow: hidden;
+    padding: 6px 6px;
+}
+
+.header a {
+    float: left;
+    color: black;
+    text-align: center;
+    padding: 6px;
+    text-decoration: none;
+    font-size: 19px;
+    line-height: 25px;
+    border-radius: 4px;
+}
+
+.header-right {
+    float: right;
+    margin: 15px 90px 15px 15px;
+
+}
+
+.logo {
+    margin-left: 18px;
+}
+
+.logo img {
+    height: 45px;
+}
+
+.back1 {
+    width: 550px;
+    right: 200px;
+    top: 110px;
+    position: absolute;
+
+}
+
+.back2 {
+    width: 550px;
+    right: 195px;
+    top: 110px;
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+
+}
+
+.back2:hover {
+
+    opacity: 1;
+    transition: 0.3s ease-in;
+}
+
+.kw-button {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    outline: 0;
+    -webkit-appearance: none;
+    display: inline-block;
+    position: relative;
+    padding: 5px 18px;
+    top: 0;
+    font-size: 14px;
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(30, 175, 204, 0.5);
+    /* background: rgba( 30, 175, 204, 1 ); */
+    margin-left: 10px;
+    color: rgb(124, 121, 121);
+    box-shadow: 0px 0px 0px rgba(15, 165, 60, 0.1);
+
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+
+}
+
+.kw-button:hover {
+    top: -5px;
+    box-shadow: 0px 5px 5px rgba(30, 175, 204, 0.2);
+
+    -webkit-transform: rotateX(10deg);
+    -moz-transform: rotateX(10deg);
+    -ms-transform: rotateX(10deg);
+    transform: rotateX(10deg);
+}
+
+.kw-button:active {
+    top: 0px;
+    box-shadow: 0px 0px 0px rgba(30, 175, 204, 0.0);
+    background: rgba(83, 74, 74, 1);
+    color: white;
+}
+
+.main {
+    float: top;
+    position: relative;
+    color: rgba(83, 74, 74, 1);
+    width: 100%;
+    height: 100%;
+    background-image: url(images/main1.jpg);
+    background-repeat: no-repeat;
+}
+
+.text-area {
+    width: 300px;
+    position: absolute;
+    top: 50px;
+    font-size: 20px;
+    left: 170px;
+    font-weight: 400;
+    align-content: center;
+}
+
+.kw-button2 {
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    outline: 0;
+    -webkit-appearance: none;
+    display: inline-block;
+    position: relative;
+    padding: 10px 30px;
+    top: 0;
+    font-size: 20px;
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(30, 175, 204, 0.5);
+    /* background: rgba( 30, 175, 204, 1 ); */
+    margin: 10px 10px 10px 0px;
+    background-color: rgb(61, 94, 228);
+    color: white;
+    box-shadow: 0px 0px 0px rgba(15, 165, 60, 0.1);
+
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+
+}
+
+.kw-button2:hover {
+    top: -5px;
+    box-shadow: 0px 5px 5px rgba(30, 175, 204, 0.2);
+
+    -webkit-transform: rotateX(10deg);
+    -moz-transform: rotateX(10deg);
+    -ms-transform: rotateX(10deg);
+    transform: rotateX(10deg);
+}
+
+.kw-button2:active {
+    top: 0px;
+    box-shadow: 0px 0px 0px rgba(30, 175, 204, 0.0);
+    background: rgba(83, 74, 74, 1);
+    color: white;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+.model button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.model button:hover {
+    opacity: 0.8;
+}
+
+/* Extra styles for the cancel button */
+.cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+}
+
+/* Center the image and position the close button */
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+    position: relative;
+}
+
+img.avatar {
+    width: 10%;
+    border-radius: 50%;
+    margin-top: 20px;
+}
+
+.container {
+    padding: 16px;
+}
+
+span.psw {
+    float: right;
+    padding-bottom: 16px;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+    border: 1px solid #888;
+    width: 50%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button (x) */
+.close {
+    position: absolute;
+    right: 25px;
+    top: 0;
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: red;
+    cursor: pointer;
+}
+
+/* Add Zoom Animation */
+.animate {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+    from {
+        -webkit-transform: scale(0)
+    }
+    to {
+        -webkit-transform: scale(1)
+    }
+}
+
+@keyframes animatezoom {
+    from {
+        transform: scale(0)
+    }
+    to {
+        transform: scale(1)
+    }
+}
+
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+    span.psw {
+        display: block;
+        float: none;
+    }
+
+    .cancelbtn {
+        width: 100%;
+    }
+}
+
+.contentbees {
+    text-align: justify;
+    padding: 10px;
+}

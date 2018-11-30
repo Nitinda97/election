@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../static/bees.css">
+    <link href="https://fonts.googleapis.com/css?family=Arimo|Kodchasan|Open+Sans" rel="stylesheet">
+    <link rel="icon" href="../static/images/bees-icon.png" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+
+<body>
+<div class="page1">
+
+    <div class="header">
+        <a href="#default" class="logo"><img src="../static/images/bees.png"></a>
+        <div class="header-right">
+            <button class="kw-button">Home</button>
+            <button class="kw-button">Why Us</button>
+            <button class="kw-button">Resources</button>
+            <button class="kw-button">Home</button>
+            <button class="kw-button">Bots</button>
+        </div>
+    </div>
+
+
+    <div class="main">
+        <img class="back2" src="../static/images/image3.png">
+        <img class="back1" src="../static/images/image.png">
+
+        <div class="text-area">
+            <h1>The Next Generation &nbsp;&nbsp;&nbsp;&nbsp; Of Voting </h1>
+            <h6>Based on Blockchain</h6>
+            <button onclick="document.getElementById('id01').style.display='block'" style="width:auto;"
+                    class="kw-button2">Log In &nbsp;<i class="material-icons">touch_app</i></button>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <p style="color: red">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <button onclick="document.getElementById('id10').style.display='block'" style="width:auto;"
+                    class="kw-button2">KNOW MORE &nbsp;<i class="material-icons">search</i></button>
+
+        </div>
+
+
+        <div id="id01" class="modal">
+
+            <form class="modal-content animate" method="post" action="login">
+                <div class="imgcontainer">
+                    <span onclick="document.getElementById('id01').style.display='none'" class="close"
+                          title="Close Modal">&times;</span>
+                    <img src="../static/images/bees.png" alt="Avatar" class="avatar">
+                </div>
+
+                <div class="container">
+                    <label for="uname"><b>Username</b></label>
+                    <input type="text" placeholder="Enter Username" name="username" required>
+
+                    <label for="psw"><b>Password</b></label>
+                    <input type="password" placeholder="Enter Password" name="password" required>
+
+                    <button class="kw-button2" type="button" id="login">Login</button>
+                    <p id="successAlert" style="color:red;"></p>
+                    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;"></div>
+                </div>
+
+                <div class="container" style="background-color:#f1f1f1">
+                    <button type="button" class="kw-button onclick=" document.getElementById(
+                    'id01').style.display='none'" class="cancelbtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="id10" class="modal">
+            <div class="contentbees modal-content animate">
+                <img src="../static/images/bees.png" alt="Avatar" class="avatar">
+                <h5>Voting plays an important role in constructing a democratic society. The traditional voting
+                    required voters to cast their votes in appointed polling stations, using ballot papers which usually
+                    involved enormous expenditure on time and cost budget. Now with the advent of new technology
+                    EVM machines are used to cast the votes.
+                </h5>
+                <h5>
+                    The problems that we are facing with the EVMs today is that we lack individual verifiability and
+                    universal verifiability. We are also unsure whether our vote is legitimately being casted to the
+                    candidate of our choice. There is also a possibility that multiple votes are casted by the same
+                    person. There are chances that someone can influence the final result when tallying.</h5>
+                <h5>
+                    To overcome the challenges of EVM we have proposed a web based voting system that uses E-Voting
+                    Protocol based on blockchain by using the ring signature algorithm. The requirements can be
+                    satisfied
+                    with ballot-privacy, individual verifiability, eligibility, completeness, uniqueness, and
+                    robustness.
+                </h5>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+</body>
+<script>
+    // Get the modal
+    var modal = document.getElementById('id01');
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+
+    var modal = document.getElementById('id10');
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+    $(function () {
+        $('#login').click(function () {
+            $.ajax({
+                url: '/login',
+                data: $('form').serialize(),
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.error) {
+                        $('#errorAlert').replaceWith("<p style='color: red'>incorrect username or password</p>")
+                    }
+                    else if (data.name === 'ea')
+                        window.location.replace("/login");
+                    else
+                        window.location.replace("/dashboard");
+                    console.log(data);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
+
+
+</script>
+</html>
