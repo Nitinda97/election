@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html class="no-js" lang="en">
 <head>
     <meta charset="utf-8"/>
     <link rel="icon" type="image/png" href="../static/assets/img/favicon.ico">
@@ -29,9 +29,16 @@
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link href="../static/assets/css/pe-icon-7-stroke.css" rel="stylesheet"/>
+    <style>
+		/* This only works with JavaScript,
+		   if it's not present, don't show loader */
+		.no-js #loader { display: none;  }
+		.js #loader { display: block; position: absolute; left: 100px; top: 0; }
+	</style>
 </head>
 <body>
-
+        <img id="loader" src="../static/images/tenor.gif" />
+    </img>
 <div class="wrapper">
     <div class="sidebar" data-color="blue" data-image="../static/assets/img/sidebar-5.jpg">
 
@@ -196,7 +203,7 @@
                                 <h4 class="title">Voter Registration</h4>
                             </div>
                             <div class="content">
-                                <form method="post" action="addVoterBackend">
+                                <form method="post" action="addVoterBackend" id="form1">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
@@ -247,7 +254,7 @@
                                 {% with messages = get_flashed_messages() %}
                                 {% if messages %}
                                 {% for message in messages %}
-                                {% if message=="Records Added Successfully" %}
+                                {% if message=="Email has been sent to the voter" %}
                                 <p style="color: green">{{ message }}</p>
                                 {% else %}
                                 <p style="color: red">{{ message }}</p>
@@ -269,7 +276,7 @@
 
 </div>
 </div>
-
+<div class="modal"><!-- Place at bottom of page --></div>
 
 </body>
 
@@ -291,5 +298,13 @@
 
 <!-- Light Bootstrap Table DEMO methods, don't include it in your project! -->
 <script src="../static/assets/js/demo.js"></script>
+<script>
+   $(window).load(function() {
+			// Animate loader off screen
+			$("#loader").animate({
+				top: -200
+			}, 1500);
+		});
+</script>
 
 </html>

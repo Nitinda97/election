@@ -7,6 +7,51 @@ body {
     font-family: 'Open Sans', sans-serif;
 
 }
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.mode {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 )
+                url('http://i.stack.imgur.com/FhHRx.gif')
+                50% 50%
+                no-repeat;
+}
+.ajax-loader {
+  visibility: hidden;
+  background-color: rgba(255,255,255,0.7);
+  position: absolute;
+  z-index: +100 !important;
+  width: 100%;
+  height:100%;
+}
+
+.ajax-loader img {
+  position: relative;
+  top:50%;
+  left:50%;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading .mode {
+    overflow: hidden;
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .mode {
+    display: block;
+}
+
 
 .header {
     overflow: hidden;
