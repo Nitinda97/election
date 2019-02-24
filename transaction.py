@@ -9,4 +9,4 @@ class Transaction:
         self.OP_RETURN=OP_RETURN
 
     def to_ordered_dict(self):
-        return OrderedDict([('sender', self.sender), ('recipient', self.receiver), ('amount', self.amount), ('scriptSig', self.scriptSig),('transaction_no',self.transaction_no),('OP_RETURN',self.OP_RETURN)])
+        return OrderedDict([('sender', self.sender), ('receiver', self.receiver), ('amount', self.amount), ('scriptSig', self.scriptSig),('transaction_no',self.transaction_no),('OP_RETURN',self.OP_RETURN)])

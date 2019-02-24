@@ -18,6 +18,7 @@ class Blockchain:
         self.public_key = public_key
         self.peer_nodes = set()
         self.node_id = node_id
+        self.resolve_conflicts = False
         self.load_data()
 
 
@@ -53,7 +54,7 @@ class Blockchain:
                 updated_bc = []
                 for block in bc:
                     converted_tx = [Transaction(
-                        tx['sender'], tx['receiver'],tx['amount'], tx['scriptSig']) for tx in block['transactions']]
+                        tx['sender'], tx['receiver'],tx['amount'], tx['scriptSig'],tx['transaction_no'],tx['OP_RETURN']) for tx in block['transactions']]
                     updated_block = Block(
                         block['index'], block['prev_hash'],block['proof'], converted_tx,block['timestamp'])
                     updated_bc.append(updated_block)
@@ -63,7 +64,7 @@ class Blockchain:
                 open_transactions = json.loads(file_content[1][:-1])
                 updated_transactions = []
                 for tx in open_transactions:
-                    updated_transaction = Transaction(tx['sender'], tx['receiver'], tx['amount'], tx['scriptSig'])
+                    updated_transaction = Transaction(tx['sender'], tx['receiver'], tx['amount'], tx['scriptSig'],tx['transaction_no'],tx['OP_RETURN'])
                     updated_transactions.append(updated_transaction)
                 self.open_transactions = updated_transactions
 
@@ -119,7 +120,11 @@ class Blockchain:
 
     def valid_proof(self,transactions,prev_hash,proof):
         guess_hash= hashlib.sha256((str([tx.to_ordered_dict() for tx in transactions]) + str(prev_hash) + str(proof)).encode()).hexdigest()
-        return guess_hash[0:2]=='00'
+        if (guess_hash[0:2]=='00'):
+            print("PROOF WALA{}".format(str([tx.to_ordered_dict() for tx in transactions])))
+            return True
+        else:
+            return False
 
     def proof_of_work(self):
         proof=0
@@ -136,7 +141,7 @@ class Blockchain:
         print("prev hash generated:",prev_hash)
         proof=self.proof_of_work()
         print("proof generated:", proof)
-        scriptSig=OrderedDict([('signature', ''), ('pubic_key', 'Mining')])
+        scriptSig=OrderedDict([('signature', ''), ('public_key', 'Mining')])
         receiver=(SHA256.new((self.public_key).encode('utf8'))).hexdigest()
         h = SHA256.new((str("Mining") + str(receiver) + str(MINING_REWARD)).encode('utf8'))
         reward_transaction=Transaction("Mining",receiver,MINING_REWARD,scriptSig,h.hexdigest(),"")
@@ -153,15 +158,30 @@ class Blockchain:
         self.chain.append(block)
         self.open_transactions = []
         self.save_data()
+        for node in self.peer_nodes:
+            url = 'http://localhost:{}/broadcast-block'.format(node)
+            converted_block = block.__dict__.copy()
+            converted_block['transactions'] = [
+                tx.__dict__ for tx in converted_block['transactions']]
+            try:
+                response = requests.post(url, json={'block': converted_block})
+                if response.status_code == 400 or response.status_code == 500:
+                    print('Block declined, needs resolving')
+                if response.status_code == 409:
+                    self.resolve_conflicts = True
+            except requests.exceptions.ConnectionError:
+                continue
         return block
 
     def add_block(self, block):
         transactions = [Transaction(
-            tx['sender'], tx['receiver'], tx['amount'], tx['scriptSig']) for tx in block['transactions']]
-        proof_is_valid = self.valid_proof(
-            transactions[:-1], block['prev_hash'], block['proof'])
+            tx['sender'], tx['receiver'], tx['amount'],OrderedDict([('signature',tx['scriptSig']['signature']), ('public_key',tx['scriptSig']['public_key'])]),tx['transaction_no'],tx['OP_RETURN']) for tx in block['transactions']]
+        proof_is_valid = self.valid_proof(transactions[:-1], block['prev_hash'], block['proof'])
+        print("proof is valid={}".format(proof_is_valid))
         hashes_match = self.hash_block(self.chain[-1]) == block['prev_hash']
+        print("HASH is valid={}".format(hashes_match))
         if not proof_is_valid or not hashes_match:
+            print('PROOF IS WRONG')
             return False
         converted_block = Block(
             block['index'], block['prev_hash'], block['proof'],transactions, block['timestamp'])
@@ -170,7 +190,7 @@ class Blockchain:
         for itx in block['transactions']:
             for opentx in stored_transactions:
                 if opentx.sender == itx['sender'] and opentx.receiver == itx['receiver'] and opentx.amount == itx[
-                    'amount'] and opentx.scriptSig == itx['scriptSig']:
+                    'amount'] and opentx.scriptSig == itx['scriptSig'] and opentx.transaction_no == itx['transaction_no'] and opentx.OP_RETURN == itx['OP_RETURN']:
                     try:
                         self.open_transactions.remove(opentx)
                     except ValueError:

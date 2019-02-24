@@ -97,7 +97,7 @@ def create_keys():
 """
 # EA SAVE PUBLIC KEY IN DATABASE
 @app.route('/broadcast-key', methods=['POST'])
-def broadcast_transaction():
+def broadcast_key():
     values = request.get_json()
     if not values:
         response = {'message': 'No data found.'}
@@ -265,6 +265,30 @@ def candidateListBackend():
         if (mydb.is_connected()):
             mydb.close()
 
+@app.route("/candidateinfo",methods=["POST"])
+def candidateinfo():
+    try:
+        mydb = mysql.connector.connect(host="localhost", user="root", password="nitin", database="bees")
+        print("error")
+        mycursor = mydb.cursor()
+        print("error222")
+        mycursor.execute("Select * from candidate")
+        rs = mycursor.fetchall()
+        w=[]
+        for i in rs:
+            data={'Name':i[1]+" "+i[2],'uid':i[4],'party':i[5]}
+            w.append(data)
+        value={'value':w}
+        return jsonify(value),200
+    except mysql.connector.Error as error:
+        response={'message':"candidates not fetched"}
+        return jsonify(response),400
+    finally:
+        # closing database connection.
+        if (mydb.is_connected()):
+            mydb.close()
+
+
 
 # RA Dashboard
 @app.route("/dashboard")
@@ -294,7 +318,7 @@ def create_keys():
         response = {
             'Nitcoin Address':address,
             'private_key': wallet.private_key,
-            'funds': blockchain.get_balance()
+            'funds': blockchain.get_balance(address)
         }
         return jsonify(response), 201
     else:
@@ -312,7 +336,7 @@ def load_keys():
         response = {
             'Nitcoin Address': address,
             'private_key': wallet.private_key,
-            'funds': blockchain.get_balance()
+            'funds': blockchain.get_balance(address)
         }
         return jsonify(response), 201
     else:
@@ -354,6 +378,10 @@ def transaction():
                 }
                 return jsonify(response), 500
         mydb.commit()
+        response = {
+            'message': 'Creating a transaction successful.'
+        }
+        return jsonify(response), 200
     except mysql.connector.Error as error:
         mydb.rollback()
         print("failure:{}".format(error))# rollback if any exception occured
@@ -472,6 +500,79 @@ def mine():
             'wallet_set_up': wallet.public_key is not None
         }
         return jsonify(response), 500
+
+@app.route('/transactions', methods=['GET'])
+def get_open_transaction():
+    transactions = blockchain.open_transactions
+    dict_transactions = [tx.__dict__ for tx in transactions]
+    return jsonify(dict_transactions), 200
+
+@app.route('/chain', methods=['GET'])
+def get_chain():
+    chain_snapshot = blockchain.chain
+    dict_chain = [block.__dict__.copy() for block in chain_snapshot]
+    for dict_block in dict_chain:
+        dict_block['transactions'] = [
+            tx.__dict__ for tx in dict_block['transactions']]
+    return jsonify(dict_chain), 200
+
+@app.route('/broadcast-transaction', methods=['POST'])
+def broadcast_transaction():
+    values = request.get_json()
+    if not values:
+        response = {'message': 'No data found.'}
+        return jsonify(response), 400
+    required = ['sender', 'receiver', 'amount', 'signature','public_key','transaction_no','OP_RETURN']
+    if not all(key in values for key in required):
+        response = {'message': 'Some data is missing.'}
+        return jsonify(response), 400
+    scriptSig = OrderedDict([('signature', values['signature']), ('public_key', values['public_key'])])
+    transaction=Transaction(values['sender'], values['receiver'], values['amount'], scriptSig,values['transaction_no'],values['OP_RETURN'])
+    success = blockchain.add_transaction(transaction,is_receiving=True)
+    if success:
+        response = {
+            'message': 'Successfully added transaction.',
+            'transaction': {
+                'sender': values['sender'],
+                'receiver': values['receiver'],
+                'amount': values['amount'],
+                'scriptSig': values['scriptSig'],
+                'transaction_no': values['transaction_no'],
+                'OP_RETURN': values['OP_RETURN']
+            }
+        }
+        return jsonify(response), 201
+    else:
+        response = {
+            'message': 'Creating a transaction failed.'
+        }
+        return jsonify(response), 500
+
+
+
+@app.route('/broadcast-block', methods=['POST'])
+def broadcast_block():
+    values = request.get_json()
+    if not values:
+        response = {'message': 'No data found.'}
+        return jsonify(response), 400
+    if 'block' not in values:
+        response = {'message': 'Some data is missing.'}
+        return jsonify(response), 400
+    block = values['block']
+    if block['index'] == blockchain.chain[-1].index + 1:
+        if blockchain.add_block(block):
+            response = {'message': 'Block added'}
+            return jsonify(response), 201
+        else:
+            response = {'message': 'Block seems invalid.'}
+            return jsonify(response), 500
+    elif block['index'] > blockchain.chain[-1].index:
+        pass
+    else:
+        response = {'message': 'Blockchain seems to be shorter, block not added'}
+        return jsonify(response), 409
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
