@@ -1,13 +1,13 @@
 from collections import OrderedDict
 import json
-from flask import Flask,jsonify,request,render_template
+from flask import Flask,jsonify,request,render_template,flash,redirect,url_for
 import requests
 from wallet import Wallet
 from blockchain import Blockchain
 from Crypto.Hash import SHA256
 from transaction import Transaction
 app=Flask(__name__)
-
+app.secret_key = "any random string"
 
 @app.route('/wallet', methods=['POST'])
 def create_keys():
@@ -46,7 +46,7 @@ def load_keys():
         blockchain = Blockchain(wallet.public_key, port)
         address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
         response = {
-            'Nitcoin Address': address,
+            'public_key': wallet.public_key,
             'private_key': wallet.private_key,
             'funds': blockchain.get_balance(address)
         }
@@ -71,13 +71,41 @@ def user():
         if response.status_code == 400 or response.status_code == 500:
             print('Candidates not found')
             message="Candidates not found"
-            return render_template("Voting.html",message=message)
+            return render_template("Vote.html",message=message)
         else:
             print(data['value'])
             message=data['value']
-            return render_template("Voting.html",message=message)
+            return render_template("Vote.html",message=message)
     except requests.exceptions.ConnectionError as error:
         print("ERROR {}".format(error))
+
+@app.route('/voted',methods=['POST'])
+def voted():
+    if request.method == 'POST':
+        cid = request.form['select']
+        url = 'http://localhost:{}/send_address'.format("5000")
+        try:
+            response = requests.get(url)
+            print("reached")
+            if response.status_code == 400 or response.status_code == 500:
+                print('EA Address not found')
+                ea_address=""
+            else:
+                ea_address=response.json()['Address']
+                transaction = wallet.create_transaction(ea_address,1,cid)
+                print("transaction_created", transaction.__dict__)
+                success = blockchain.add_transaction(transaction)
+                if (success):
+                    print("Success voted")
+                    message=transaction.transaction_no
+                    return render_template("Voting.html", message=message)
+                else:
+                    flash("VOTE CANNOT BE CASTED NOT ENOUGH FUNDS")
+                    return redirect(url_for('user'))
+
+        except requests.exceptions.ConnectionError:
+            pass
+
 
 
 @app.route('/node', methods=['POST'])
@@ -97,20 +125,21 @@ def add_node():
     if(node not in blockchain.peer_nodes):
         blockchain.peer_nodes.add(node)
         blockchain.save_data()
-        try:
+        '''try:
             url = 'http://localhost:{}/node'.format(node)
             response = requests.post(url, json={
                 'node': port})
-            print("reached-adding node")
+            print("reached-adding port{}".format(port))
             if response.status_code == 400 or response.status_code == 500:
                 print('Saving Node Failed')
         except requests.exceptions.ConnectionError:
-            pass
-        blockchain.save_data()
+            pass'''
+        #blockchain.save_data()
     response = {
         'message': 'Node added successfully.',
         'all_nodes': list(blockchain.peer_nodes)
     }
+    blockchain.save_data()
     return jsonify(response), 201
 
 
@@ -196,7 +225,18 @@ def broadcast_block():
         response = {'message': 'Blockchain seems to be shorter, block not added'}
         return jsonify(response), 409
 
-
+@app.route("/result")
+def result():
+    url = 'http://localhost:{}/votecount'.format(5000)
+    try:
+        response = requests.get(url)
+        if response.status_code == 400 or response.status_code == 500:
+            print('Result Not Found')
+        else:
+            message=response.json()
+            return render_template("Result.html",message=message)
+    except requests.exceptions.ConnectionError:
+        pass
 
 
 
@@ -209,9 +249,10 @@ def broadcast_block():
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', type=int, default=5001)
+    parser.add_argument('-p', '--port', type=int, default=5003)
     args = parser.parse_args()
     port = args.port
+
     wallet = Wallet(port)
     blockchain = Blockchain(wallet.public_key, port)
     blockchain.peer_nodes.add(5000)

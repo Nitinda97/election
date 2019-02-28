@@ -304,7 +304,7 @@ def dashboard():
 def EAdashboard():
     if 'username' in session:
         username = session['username']
-        return render_template("EAdashboard.html", username=username)
+        return render_template("EA.html", username=username)
     flash("please Login first")
     return redirect(url_for('login'))
 
@@ -316,7 +316,7 @@ def create_keys():
         blockchain = Blockchain(wallet.public_key, port)
         address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
         response = {
-            'Nitcoin Address':address,
+            'public_key': wallet.public_key,
             'private_key': wallet.private_key,
             'funds': blockchain.get_balance(address)
         }
@@ -334,9 +334,26 @@ def load_keys():
         blockchain = Blockchain(wallet.public_key, port)
         address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
         response = {
-            'Nitcoin Address': address,
+            'public_key': wallet.public_key,
             'private_key': wallet.private_key,
             'funds': blockchain.get_balance(address)
+        }
+        return jsonify(response), 201
+    else:
+        response = {
+            'message': 'Loading the keys failed.'
+        }
+        return jsonify(response), 500
+
+#EA SEND ITS ADDRESS TO THE VOTERS
+@app.route('/send_address', methods=['GET'])
+def send_address():
+    if wallet.load_keys():
+        global blockchain
+        blockchain = Blockchain(wallet.public_key, port)
+        address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
+        response = {
+            'Address': address,
         }
         return jsonify(response), 201
     else:
@@ -354,6 +371,7 @@ def transaction():
         }
         return jsonify(response), 400
     try:
+        ea_address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
         mydb = mysql.connector.connect(host="localhost", user="root", password="nitin", database="bees")
         print("error")
         mycursor = mydb.cursor()
@@ -379,8 +397,8 @@ def transaction():
                 return jsonify(response), 500
         mydb.commit()
         response = {
-            'message': 'Creating a transaction successful.'
-        }
+            'message': 'Creating a transaction successful.',
+            'funds': blockchain.get_balance(ea_address) }
         return jsonify(response), 200
     except mysql.connector.Error as error:
         mydb.rollback()
@@ -452,20 +470,26 @@ def add_node():
         }
         return jsonify(response), 400
     node = values['node']
-    for i in blockchain.peer_nodes:
-        print(node)
-        url = 'http://localhost:{}/node'.format(i)
-        try:
-            response = requests.post(url, json={
-                'node': node})
-            print("reached-adding node")
-            if response.status_code == 400 or response.status_code == 500:
-                print('Saving Node Failed')
-        except requests.exceptions.ConnectionError:
-            pass
-
     blockchain.peer_nodes.add(node)
     blockchain.save_data()
+    for i in blockchain.peer_nodes:
+        for j in blockchain.peer_nodes:
+            print(node)
+            if(j != i):
+                url = 'http://localhost:{}/node'.format(j)
+                try:
+                    response = requests.post(url, json={
+                        'node': i})
+                    print("reached-adding node{}".format(port))
+                    if response.status_code == 400 or response.status_code == 500:
+                        print('Saving Node Failed')
+                except requests.exceptions.ConnectionError:
+                    pass
+            else:
+                continue
+
+    #blockchain.peer_nodes.add(node)
+    #blockchain.save_data()
     response = {
         'message': 'Node added successfully.',
         'all_nodes': list(blockchain.peer_nodes)
@@ -536,7 +560,7 @@ def broadcast_transaction():
                 'sender': values['sender'],
                 'receiver': values['receiver'],
                 'amount': values['amount'],
-                'scriptSig': values['scriptSig'],
+                'scriptSig': scriptSig,
                 'transaction_no': values['transaction_no'],
                 'OP_RETURN': values['OP_RETURN']
             }
@@ -573,6 +597,70 @@ def broadcast_block():
         response = {'message': 'Blockchain seems to be shorter, block not added'}
         return jsonify(response), 409
 
+@app.route("/result")
+def result():
+    url = 'http://localhost:{}/votecount'.format(5000)
+    try:
+        response = requests.get(url)
+        if response.status_code == 400 or response.status_code == 500:
+            print('Result Not Found')
+        else:
+            message=response.json()
+            return render_template("Result.html",message=message)
+    except requests.exceptions.ConnectionError:
+        pass
+
+@app.route('/votecount')
+def votecount():
+    try:
+        c=0
+        l=[]
+        mydb = mysql.connector.connect(host="localhost", user="root", password="nitin", database="bees")
+        print("error")
+        mycursor = mydb.cursor()
+        print("error222")
+        mycursor.execute("Select uid from candidate")
+        rs = mycursor.fetchall()
+        for i in rs:
+            c,=i
+            l.append(c)
+        print(l)
+        data={ i:0 for i in l}
+        print(data)
+        address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
+        for block in blockchain.chain:
+            for transaction in block.transactions:
+                if (address == transaction.receiver and transaction.OP_RETURN != ''):
+                    op_return = transaction.OP_RETURN
+                    data[op_return] = data[op_return] + 1
+        print(data)
+        url = 'http://localhost:{}/candidateinfo'.format(5000)
+        try:
+            response = requests.post(url)
+            data2 = response.json()
+            if response.status_code == 400 or response.status_code == 500:
+                print('Candidates not found')
+                message = "Candidates not found"
+                return jsonify(message)
+            else:
+                print(data2['value'])
+                message = data2['value']
+                message.append(data)
+                print(message)
+                return jsonify(message)
+        except requests.exceptions.ConnectionError as error:
+            print("ERROR {}".format(error))
+    except mysql.connector.Error as error:
+        mydb.rollback()
+        print("failure:{}".format(error))
+        response={"message":"Galat"}
+        return jsonify(response),400# rollback if any exception occured
+    finally:
+        # closing database connection.
+        if (mydb.is_connected()):
+            mydb.close()
+
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -580,8 +668,11 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--port', type=int, default=5000)
     args = parser.parse_args()
     port = args.port
+
     keys = Keys(port)
     wallet = Wallet(port)
+
     blockchain = Blockchain(wallet.public_key, port)
-    #blockchain = Blockchain(wallet.public_key, port)
     app.run(host='localhost', port=port)
+    #blockchain = Blockchain(wallet.public_key, port)
+

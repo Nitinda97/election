@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/assets/css/boot.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+    <link rel="stylesheet" href="/static/assets/css/styles.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<h1 align="centre">RESULT</h1>
+<table class="table table-hover table-striped">
+                                    <thead>
+                                    <th>UID</th>
+                                    <th>Name</th>
+                                    <th>Party Name</th>
+                                    <th>No. of Votes</th>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in message[:-1] %}
+                                    <tr>
+                                        <td>{{item['uid']}}</td>
+                                        <td>{{item['Name']}}</td>
+                                        <td>{{item['party']}}</td>
+                                        <td>{{message[-1][item['uid']]}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EA-Dashboard</title>
+    <link rel="stylesheet" href="/static/assets/css/boot.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+    <link rel="stylesheet" href="/static/assets/css/styles.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
+        <div class="container"><a class="navbar-brand logo" href="#">B.E.E.S.</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse"
+                id="navbarNav">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html">Election Authority</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="page lanidng-page">
+        <section class="portfolio-block block-intro">
+            FUNDS: <input id="funds" type="text" disabled>
+            <button class="btn btn-outline-primary" id="mine">Mine Block</button>
+            <br>
+            <br>
+            <form>
+                <div class="field"><textarea id="private" class="form-control" placeholder=" " name="float-textarea" style="border: 0; border-bottom: 1px solid #E0E0E0;"></textarea><label class="mb-0" for="float-textarea">PRIVATE-KEY</label></div>
+            </form>
+            <form>
+                <div class="field"><textarea id="public" class="form-control" placeholder=" " name="float-textarea" style="border: 0; border-bottom: 1px solid #E0E0E0;"></textarea><label class="mb-0" for="float-textarea">PUBLIC-KEY</label></div>
+            </form>
+            <div class="container">
+                <div class="about-me"></div>
+            </div><button class="btn btn-outline-primary" id="key2">Create Wallet </button>
+            <button class="btn btn-outline-primary" id="key">Load Wallet</button>
+        </section>
+        <section class="portfolio-block photography">
+        <section class="portfolio-block skills"></section>
+    </main>
+    <footer class="page-footer">
+        <div class="container">
+            <div class="links"><button class="btn btn-outline-primary" id="transaction">Send Amount to Voters</button></div>
+        </div>
+    </footer>
+    <script>
+    $('#key').click(function ()
+    {
+        $.ajax({
+                url: "/wallet",
+                type: "get", //send it through post method
+                success: function(response)
+                    {
+                        $('#private').val(response.private_key)
+                        $('#public').val(response.public_key)
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
+
+    $('#key2').click(function ()
+    {
+        $.ajax({
+                url: "/wallet",
+                type: "post", //send it through post method
+                success: function(response)
+                    {
+                        $('#private').val(response.private_key)
+                        $('#public').val(response.public_key)
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
+
+    $('#mine').click(function ()
+    {
+        $.ajax({
+                url: "/mine",
+                type: "post", //send it through post method
+                success: function(response)
+                    {
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
+
+    $('#transaction').click(function ()
+    {
+        $.ajax({
+                url: "/transaction",
+                type: "post", //send it through post method
+                success: function(response)
+                    {
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/assets/js/script.min.js"></script>
+</body>
+
+</html>
