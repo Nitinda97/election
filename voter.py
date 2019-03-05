@@ -238,18 +238,36 @@ def result():
     except requests.exceptions.ConnectionError:
         pass
 
+@app.route("/verifyVote",methods=["POST"])
+def verifyVote():
+    values = request.form["transaction_id"]
+    if not values:
+        response = {'message': 'No data found.'}
+        return jsonify(response), 400
+    #if 'transaction_id' not in values:
+        #response = {'message': 'Some data is missing.'}
+        #return jsonify(response), 400
+    transaction_id = values
+    if(blockchain.verifyVoteOpenTransaction(transaction_id)==True):
+        response={"message":"Your Transaction is unconfirmed still in Transaction Pool"}
+        return jsonify(response),200
+    elif (blockchain.verifyVoteBlockchain(transaction_id) == True):
+        response = {"message": "Your Vote is confirmed and has been added on the blockchain"}
+        return jsonify(response),200
+    else:
+        response = {"message": "Transaction ID is wrong"}
+        return jsonify(response),200
 
-
-
-
-
+@app.route("/verifyTransaction")
+def verifyTransaction():
+    return render_template("verifyVote.html")
 
 
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', type=int, default=5003)
+    parser.add_argument('-p', '--port', type=int, default=5001)
     args = parser.parse_args()
     port = args.port
 

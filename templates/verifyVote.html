@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vote-Verified</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<label>Transaction Id:</label>
+<input id="transaction" type="text">
+<button type="submit" id="search">Search</button>
+<p id="content"></p>
+<script>
+    $('#search').click(function ()
+    {
+        $.ajax({
+                url: "/verifyVote",
+                type: "post",
+                data: {'transaction_id' : $('#transaction').val()},//send it through post method
+                dataType:'json',
+                success: function(response)
+                    {
+                        $('#content').text(response.message)
+
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/assets/js/script.min.js"></script>
+</body>
+</html>

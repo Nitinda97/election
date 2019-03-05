@@ -40,6 +40,25 @@ class Blockchain:
             print("balance=",received-sent)
             return received-sent
 
+    def verifyVoteOpenTransaction(self,transaction_id=""):
+        if(transaction_id==""):
+            return False
+        else:
+            for tx in self.open_transactions:
+                if(tx.transaction_no==transaction_id):
+                    return True
+            return False
+
+    def verifyVoteBlockchain(self,transaction_id=""):
+        if(transaction_id==""):
+            return False
+        else:
+            for block in self.chain:
+                for transaction in block.transactions:
+                    if (transaction.transaction_no==transaction_id):
+                        return True
+            return False
+
     def verify_transaction(self,transaction):
         sender_balance = self.get_balance(transaction.sender)
         print("Balance",sender_balance)
