@@ -29,6 +29,7 @@
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link href="../static/assets/css/pe-icon-7-stroke.css" rel="stylesheet"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 </head>
 <body>
@@ -53,13 +54,13 @@
             </div>
 
             <ul class="nav">
-                <li class="active">
+                <li>
                     <a href="/EAdashboard">
                         <i class="pe-7s-graph"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <li>
+                <li  class="active">
                     <a href="/EAWALLET">
                         <i class="pe-7s-user"></i>
                         <p>Wallet</p>
@@ -133,48 +134,125 @@
             </div>
         </nav>
 
-
-        <div class="content">
+ <div class="content">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-10">
-                        <div class="card">
+
+                    <div class="col-md-8">
+                        <div class="card" style="height:435px;">
                             <div class="header">
-                                <h4 class="title">Welcome To the Election Authority Dashboard</h4>
-                                <p class="category"></p>
-                            </div>
+                                <h4  class="title">Key Genration</h4>
+                             </div>
                             <div class="content">
-
-                                <ul>
-                                    <h5>
-                                        <li>On the left side of the dashboard is the viewing panel.</li>
-                                    </h5>
-                                    <h5>
-                                        <li> Wallet: This will allow you to mine some blocks and generate funds. This will also allow you to transfer funds to the voters so that they can vote.
-                                        </li>
-                                    </h5>
-                                    <h5>
-                                        <li> Candidate List: This will allow you to view the candidate information
-                                            stored into the system
-                                        </li>
-                                    </h5>
-                                    <h5>
-                                        <li> View Result: This will allow you to view the real time tally of result.
-                                        </li>
-                                    </h5>
-                                </ul>
-
+                                <div class="form-group">
+                                    <label style="color:darkslategray; font-size:14px; font-weight:400;" for="public">Public Key</label>
+                                    <textarea class="form-control" rows="5" id="public"></textarea>
+                                    <label style="color:darkslategray; font-size:14px; font-weight:400; margin-top:20px;" for="private">Private key</label>
+                                    <textarea class="form-control" rows="5" id="private"></textarea>
+                                    <button  style="float:right; margin-top:15px; margin-left:10px;" type="button" class="btn btn-primary" id="key">Load Wallet </button>
+                                    <button  style="float:right; margin-top:15px;" type="button" class="btn btn-primary" id="key2">Create Wallet</button>
+                                  </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <div class="col-md-4">
+                                <div class="card" style="height:435px;">
+                                    <div class="header">
+                                        <h4  class="title">Funds:</h4>
+                                     </div>
+                                    <div class="content">
+                                        <div class="form-group" >
+                                            <input type="Number" style="width:100%; height:80px;
+                                            padding: 12px 20px;
+                                            margin: 8px 0;
+                                            box-sizing: border-box; font-size:24px;" class="form-control" id="funds">
+                                            <button  style="float:left; margin-top:15px; margin-left:100px;" type="button" class="btn btn-primary" id="mine">Mine Block</button>
+                                        <br/>
+                                            <button  style="float:left; margin-top:15px; width:100%; height:60px;" type="button" class="btn btn-primary" id="transaction">Send Amount to Voters</button>
+                                          </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
                         </div>
                     </div>
                 </div>
-            </div>
 
+<script>
+    $('#key').click(function ()
+    {
+        $.ajax({
+                url: "/wallet",
+                type: "get", //send it through post method
+                success: function(response)
+                    {
+                        $('#private').val(response.private_key)
+                        $('#public').val(response.public_key)
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
 
-        </div>
-    </div>
+    $('#key2').click(function ()
+    {
+        $.ajax({
+                url: "/wallet",
+                type: "post", //send it through post method
+                success: function(response)
+                    {
+                        $('#private').val(response.private_key)
+                        $('#public').val(response.public_key)
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
 
+    $('#mine').click(function ()
+    {
+        $.ajax({
+                url: "/mine",
+                type: "post", //send it through post method
+                success: function(response)
+                    {
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
 
+    $('#transaction').click(function ()
+    {
+        $.ajax({
+                url: "/transaction",
+                type: "post", //send it through post method
+                success: function(response)
+                    {
+                        $('#funds').val(response.funds)
+                        console.log(response)//Do Something
+                    },
+                error: function(xhr) {
+                        console.log(xhr.message)//Do Something to handle error
+                    }
+                });
+    });
+</script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/assets/js/script.min.js"></script>
 </body>
 
 <!--   Core JS Files   -->
@@ -195,22 +273,5 @@
 
 <!-- Light Bootstrap Table DEMO methods, don't include it in your project! -->
 <script src="../static/assets/js/demo.js"></script>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        demo.initChartist();
-
-        $.notify({
-            icon: 'pe-7s-gift',
-            message: "Welcome to <b>Blockchain Enabled E-Voting</b> - Using BlockChain."
-
-        }, {
-            type: 'info',
-            timer: 4000
-        });
-
-    });
-</script>
 
 </html>

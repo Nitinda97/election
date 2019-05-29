@@ -21,6 +21,15 @@ class Blockchain:
         self.resolve_conflicts = False
         self.load_data()
 
+    def voted(self,address):
+        for block in self.chain:
+            for transaction in block.transactions:
+                if (address == transaction.sender):
+                    return True
+        for tx in self.open_transactions:
+            if (address == tx.sender):
+                return True
+
 
     def get_balance(self,sender=None):
         if sender is None:

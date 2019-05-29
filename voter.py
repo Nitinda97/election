@@ -92,6 +92,10 @@ def voted():
                 ea_address=""
             else:
                 ea_address=response.json()['Address']
+                address = SHA256.new((wallet.public_key).encode('utf8')).hexdigest()
+                if(blockchain.voted(address)==True):
+                    flash("VOTE HAS ALREADY BEEN CASTED YOU CANNOT VOTE AGAIN")
+                    return redirect(url_for('user'))
                 transaction = wallet.create_transaction(ea_address,1,cid)
                 print("transaction_created", transaction.__dict__)
                 success = blockchain.add_transaction(transaction)
@@ -249,7 +253,7 @@ def verifyVote():
         #return jsonify(response), 400
     transaction_id = values
     if(blockchain.verifyVoteOpenTransaction(transaction_id)==True):
-        response={"message":"Your Transaction is unconfirmed still in Transaction Pool"}
+        response={"message":"Your Transaction is unconfirmed and is still in the Transaction Pool. Wait for sometime and try again."}
         return jsonify(response),200
     elif (blockchain.verifyVoteBlockchain(transaction_id) == True):
         response = {"message": "Your Vote is confirmed and has been added on the blockchain"}
@@ -267,7 +271,7 @@ def verifyTransaction():
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', type=int, default=5001)
+    parser.add_argument('-p', '--port', type=int, default=5002)
     args = parser.parse_args()
     port = args.port
 

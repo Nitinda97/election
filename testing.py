@@ -129,7 +129,6 @@ def addVoter():
     flash("please Login first")
     return redirect(url_for('login'))
 
-
 @app.route("/addVoterBackend", methods=["POST", "GET"])
 def addVoterBackend():
     if request.method == 'POST':
@@ -304,7 +303,15 @@ def dashboard():
 def EAdashboard():
     if 'username' in session:
         username = session['username']
-        return render_template("EA.html", username=username)
+        return render_template("eadashboard.html", username=username)
+    flash("please Login first")
+    return redirect(url_for('login'))
+
+@app.route("/EAWALLET")
+def EAWALLET():
+    if 'username' in session:
+        username = session['username']
+        return render_template("EAWALLET.html", username=username)
     flash("please Login first")
     return redirect(url_for('login'))
 
@@ -606,7 +613,7 @@ def result():
             print('Result Not Found')
         else:
             message=response.json()
-            return render_template("Result.html",message=message)
+            return render_template("EAResult.html",message=message)
     except requests.exceptions.ConnectionError:
         pass
 
